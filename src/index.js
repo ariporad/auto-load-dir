@@ -30,9 +30,9 @@ module.exports.Loader = function(dir, args, callback) {
     }
 
     this.walker = walk(dir);
-    this.walker.on('file', function () {
+    this.walker.on('file', function (file, stat) {
       try {
-        this._processFilename
+        this._processFilename(file, stat);
       } catch (err) {
         (this.cb || function() {})(err);
       }
@@ -51,9 +51,11 @@ module.exports.Loader = function(dir, args, callback) {
 };
 
 Loader.prototype._sortModules = function() {
-  return this.modules = this.modules.sort(function(a, b) {
+  this.modules = this.modules.sort(function(a, b) {
     return (a.module.priority || 0) - (b.module.priority || 0);
   });
+
+  return this.modules;
 };
 
 Loader.prototype._processModules = function() {
