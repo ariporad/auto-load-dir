@@ -67,5 +67,4 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', 'Runs the tests', ['lint', 'mochaTest']);
   grunt.registerTask('lint', 'Lints the source code', ['jshint']);
-  grunt.registerTask('watch', 'Watches and lints/tests on change', ['watch']);
 };

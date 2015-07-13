@@ -11,9 +11,6 @@ chai.should();
 
 chai.use(require('sinon-chai'));
 
-console.log('Done with common');
-require('./test.coverage');
-
 //
 // Code Coverage
 //

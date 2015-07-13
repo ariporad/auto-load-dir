@@ -5,12 +5,10 @@
 var walk = require('findit');
 
 module.exports = function loadRoutes(dir, args, callback) {
-  return new Loader(dir, args, callback);
+  return new this.Loader(dir, args, callback);
 };
 
-module.exports.pkg = require('pkginfo')(module);
-
-module.exports.Loader = function(dir, args, callback) {
+module.exports.Loader = function (dir, args, callback) {
   try {
     this.modules = [];
     this.handler = function(module) { return module.apply(this, arg); };
@@ -50,15 +48,15 @@ module.exports.Loader = function(dir, args, callback) {
   }
 };
 
-Loader.prototype._sortModules = function() {
+module.exports.Loader.prototype._sortModules = function() {
   this.modules = this.modules.sort(function(a, b) {
-    return (a.module.priority || 0) - (b.module.priority || 0);
+    return (a.priority || 0) - (b.priority || 0);
   });
 
   return this.modules;
 };
 
-Loader.prototype._processModules = function() {
+module.exports.Loader.prototype._processModules = function() {
   this._sortModules();
   for (var i = 0; i < this.modules.length; i++) {
     this.handler(this.modules[i]);
@@ -66,9 +64,11 @@ Loader.prototype._processModules = function() {
   (this.cb || function() {})();
 };
 
-Loader.prototype._processFilename = function(file, stat) {
+module.exports.Loader.prototype._processFilename = function(file, stat) {
   var parts = file.split('.');
   if (parts[parts.length - 1] === 'js') {
     modules.push(require(file));
   }
 };
+
+require('pkginfo')(module);
