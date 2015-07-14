@@ -39,7 +39,7 @@ OR
 
 ---
 ## Developing
-PRs are welcome! This was a simple file that I had in a project that needed encapsulating. Please add functionality and open a PR! It uses the (AirBnB JavaScript style guide)[https://github.com/airbnb/javascript/tree/master/es5].
+PRs are welcome! This was a simple file that I had in a project that needed encapsulating. Please add functionality and open a PR! It uses the [AirBnB JavaScript style guide](https://github.com/airbnb/javascript/tree/master/es5).
 
 ### Running tests
 
