@@ -20,7 +20,7 @@ module.exports.Loader = function(dir, args, callback) {
     this.handler = function(module) { return module.apply(this, this.args); };
   }
 
-  if (!this.dir || !this.handler) {
+  if (!this.dir && !this.handler) {
     throw new Error('You must pass in a dir and a list of arguments/a handler' +
                     ' function');
   }

@@ -3,6 +3,7 @@
  */
 /*global mocha,sinon,chai,expect,should,AssertionError,it,describe*/
 var rewire = require('rewire');
+var EventEmitter = require('events');
 
 describe('index.js', function() {
   var loader;
@@ -199,6 +200,37 @@ describe('index.js', function() {
                                           __dirname +
                                           '/test1.js']);
            });
+      });
+      describe('#_startWalker', function() {
+        var self;
+        var fakeWalk;
+        var fakeWalker;
+        beforeEach(function() {
+          self =
+          {
+            modules: [],
+            dir: __dirname + '/testing/pizza',
+            cb: function() {},
+            _processModules: function() {},
+            _processFilename: function() {}
+          };
+
+          fakeWalk = function(dir) {
+            fakeWalker = new EventEmitter();
+            fakeWalker._dir = dir;
+            return fakeWalker;
+          };
+
+          loader.__set__('walk', fakeWalk);
+        });
+        it('Should be a function', function() {
+          expect(loader.Loader.prototype._setupWalker).to.be.a('function');
+        });
+        it('Should make a new walker with self.dir', function() {
+          loader.Loader.prototype._setupWalker.apply(self);
+          expect(fakeWalker).to.be.an('object');
+          expect(fakeWalker._dir).to.eql(self.dir);
+        });
       });
     });
   });
