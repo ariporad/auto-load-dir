@@ -46,6 +46,24 @@ describe('index.js', function() {
     });
 
     describe('Loader', function() {
+      describe('The constructor', function() {
+        it('Should be a function', function() {
+          expect(loader.Loader).to.be.a('function');
+        });
+        it('Should call the callback with an error if no dir is provided',
+           function(done) {
+             loader.__set__({
+               walk: function() {
+                 return { on: function() {} };
+               }
+             });
+             loader.Loader(undefined, function(err) {
+               expect(err).to.be.an('Error');
+               expect(err.message).to.contain('dir');
+               done();
+             });
+           });
+      });
       describe('#_sortModules', function() {
         var self;
         beforeEach(function() {
@@ -150,7 +168,9 @@ describe('index.js', function() {
                [__dirname +
                 '/test1.js',
                  {}]);
-             expect(self.modules).to.eql(['require:' + __dirname + '/test1.js']);
+             expect(self.modules).to.eql(['require:' +
+                                          __dirname +
+                                          '/test1.js']);
            });
       });
     });
