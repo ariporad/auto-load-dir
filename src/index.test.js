@@ -128,6 +128,11 @@ describe('index.js', function() {
         var self;
         beforeEach(function() {
           self = { modules: [] };
+          loader.__set__({
+            require: function(file) {
+              return 'require:' + file;
+            }
+          });
         });
         it('Should be a function', function() {
           expect(loader.Loader.prototype._processFilename).to.be.a('function');
@@ -139,6 +144,11 @@ describe('index.js', function() {
 
           expect(self.modules).to.eql([]);
         });
+        it('Should require file if it ends with .js and add the result to this.modules',
+           function() {
+             loader.Loader.prototype._processFilename.apply(self, __dirname + '/test1.js', {});
+             expect(self.modules).to.eql([__dirname + '/test1.js']);
+           });
       });
     });
   });
