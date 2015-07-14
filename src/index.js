@@ -9,47 +9,49 @@ module.exports = function loadRoutes(dir, args, callback) {
 };
 
 module.exports.Loader = function(dir, args, callback) {
-  try {
-    this.modules = [];
+  this.modules = [];
+  this.dir = dir;
+  this.cb = callback || function() {};
+
+  if (typeof args == 'function') {
+    this.handler = args;
+  } else if (args instanceof Array) {
+    this.args = args;
     this.handler = function(module) { return module.apply(this, this.args); };
-    this.dir = dir;
-    this.cb = callback || function() {};
-
-    if (typeof args == 'function') {
-      this.handler = args;
-    } else if (args instanceof Array) {
-      this.args = args;
-    } else {
-      return this.cb(new Error('You must either provide an array of ' +
-                               'arguments, or a handler function'));
-    }
-
-    this._setupWalker();
-    return this;
-  } catch (err) {
-    (this.cb || callback || function() {})(err);
   }
+
+  if (!this.dir || !this.handler) {
+    throw new Error('You must pass in a dir and a list of arguments/a handler' +
+                    ' function');
+  }
+
+  this._setupWalker();
+  return this;
 };
 
 module.exports.Loader.prototype._setupWalker = function() {
-  this.walker = walk(dir);
-  this.walker.on('file', function(file, stat) {
-    try {
-      this._processFilename(file, stat);
-    } catch (err) {
-      this.cb(err);
-    }
-  });
+  try {
+    this.walker = walk(dir);
+    this.walker.on('file', function(file, stat) {
+      try {
+        this._processFilename(file, stat);
+      } catch (err) {
+        this.cb(err);
+      }
+    });
 
-  this.walker.on('end', function() {
-    try {
-      this._processModules();
-    } catch (err) {
-      this.cb(err);
-    }
-  });
+    this.walker.on('end', function() {
+      try {
+        this._processModules();
+      } catch (err) {
+        this.cb(err);
+      }
+    });
 
-  this.walker.on('error', this.cb);
+    this.walker.on('error', this.cb);
+  } catch (err) {
+    this.cb(err);
+  }
 };
 
 module.exports.Loader.prototype._sortModules = function() {

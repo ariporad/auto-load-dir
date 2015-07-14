@@ -49,17 +49,46 @@ describe('index.js', function() {
     describe('Loader', function() {
       describe('The constructor', function() {
         beforeEach(function() {
-          self = { _setupWalker: function() {} };
+          self = {
+            _setupWalker: function() {
+              this.setupWalkerCalled = true;
+            }
+          };
         });
         it('Should be a function', function() {
           expect(loader.Loader).to.be.a('function');
+        });
+        it('Should throw an error (& exit) if no dir is provided', function() {
+          function wrapper() {
+            new loader.Loader.call(self, null, [], function() {});
+          }
+
+          expect(wrapper).to.throw();
+          expect(self.setupWalkerCalled).to.eql(false);
+        });
+        it('Should throw an error (& exit) if no args/handler is provided',
+           function() {
+             function wrapper() {
+               loader.Loader.call(self, __dirname, null, function() {});
+             }
+
+             expect(wrapper).to.throw();
+             expect(self.setupWalkerCalled).to.eql(false);
+           });
+        it('Should not throw an error if no callback is provided', function() {
+          function wrapper() {
+            loader.Loader.call(self, __dirname, [], undefined);
+          }
+
+          expect(wrapper).not.to.throw();
+          expect(self.setupWalkerCalled).to.be.eql(true);
         });
         it('Set this.cb to the callback, or a empty function', function() {
           var cb = function(a, b, c) { return a * b ^ c; };
           expect(loader.Loader.call(self, __dirname, [], cb).cb).to.eql(cb);
           expect(loader.Loader.call(self,
                                     __dirname,
-                   []).cb).to.be.a('function');
+            []).cb).to.be.a('function');
         });
       });
       describe('#_sortModules', function() {
