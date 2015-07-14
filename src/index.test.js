@@ -146,8 +146,11 @@ describe('index.js', function() {
         });
         it('Should require file if it ends with .js and add the result to this.modules',
            function() {
-             loader.Loader.prototype._processFilename.apply(self, __dirname + '/test1.js', {});
-             expect(self.modules).to.eql([__dirname + '/test1.js']);
+             loader.Loader.prototype._processFilename.apply(self,
+               [__dirname +
+                '/test1.js',
+                 {}]);
+             expect(self.modules).to.eql(['require:' + __dirname + '/test1.js']);
            });
       });
     });

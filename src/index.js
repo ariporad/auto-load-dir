@@ -69,7 +69,7 @@ module.exports.Loader.prototype._processModules = function() {
 module.exports.Loader.prototype._processFilename = function(file, stat) {
   var parts = file.split('.');
   if (parts[parts.length - 1] === 'js') {
-    modules.push(require(file));
+    this.modules.push(require(file));
   }
 };
 
