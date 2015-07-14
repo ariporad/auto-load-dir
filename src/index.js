@@ -31,20 +31,21 @@ module.exports.Loader = function(dir, args, callback) {
 
 module.exports.Loader.prototype._setupWalker = function() {
   try {
-    this.walker = walk(dir);
+    var self = this;
+    this.walker = walk(this.dir);
     this.walker.on('file', function(file, stat) {
       try {
-        this._processFilename(file, stat);
+        self._processFilename(file, stat);
       } catch (err) {
-        this.cb(err);
+        self.cb(err);
       }
     });
 
     this.walker.on('end', function() {
       try {
-        this._processModules();
+        self._processModules();
       } catch (err) {
-        this.cb(err);
+        self.cb(err);
       }
     });
 

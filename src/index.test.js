@@ -211,7 +211,7 @@ describe('index.js', function() {
           {
             modules: [],
             dir: __dirname + '/testing/pizza',
-            cb: function() {},
+            cb: console.log,
             _processModules: function() {},
             _processFilename: function() {}
           };
@@ -222,7 +222,7 @@ describe('index.js', function() {
             return fakeWalker;
           };
 
-          loader.__set__('walk', fakeWalk);
+          loader.__set__({ walk: fakeWalk, });
         });
         it('Should be a function', function() {
           expect(loader.Loader.prototype._setupWalker).to.be.a('function');
@@ -231,6 +231,95 @@ describe('index.js', function() {
           loader.Loader.prototype._setupWalker.apply(self);
           expect(fakeWalker).to.be.an('object');
           expect(fakeWalker._dir).to.eql(self.dir);
+        });
+        it('Should call the callback on error', function(done) {
+          var error = new Error('Pluto blew up');
+
+          self.cb = function(err) {
+            expect(err).to.eq(error);
+            done();
+          };
+
+          loader.Loader.prototype._setupWalker.apply(self);
+
+          fakeWalker.emit('error', error);
+        });
+        it('Should call _processModules on end', function(done) {
+          // TODO: Add this, add _processFilename, README/Docs, Error (object
+          // as filename, modules is object, etc.)
+          self._processModules = function() {
+            done();
+          };
+          self.cb = function(err) {
+            console.error(err);
+          };
+
+          loader.Loader.prototype._setupWalker.call(self);
+
+          fakeWalker.emit('end');
+        });
+        it('Should call _processFilename on file', function() {
+          var filenamesProcessed = 0;
+          self._processFilename = function(file, stat) {
+            expect(file.file).to.eql(true);
+            expect(file.stat).to.eql(false);
+            expect(file.id).to.eql(filenamesProcessed);
+
+            expect(stat.file).to.eql(false);
+            expect(stat.stat).to.eql(true);
+            expect(stat.id).to.eql(filenamesProcessed);
+            filenamesProcessed++;
+          };
+          self.cb = function(err) {
+            console.error(err);
+          };
+
+          loader.Loader.prototype._setupWalker.call(self);
+
+          var files = 10;
+          for (var i = 0; i < files; i++) {
+            fakeWalker.emit('file',
+              {
+                file: true,
+                stat: false,
+                id: i
+              },
+              {
+                file: false,
+                stat: true,
+                id: i
+              });
+          }
+          expect(filenamesProcessed).to.eql(files);
+        });
+        it('Should call callback if _processModules throws an error',
+           function(done) {
+             var error = new Error('Earth Exploded');
+             self._processModules = function() {
+               throw error;
+             };
+             self.cb = function(err) {
+               expect(err).to.eql(error);
+               done();
+             };
+
+             loader.Loader.prototype._setupWalker.call(self);
+
+             fakeWalker.emit('end');
+           });
+        it('Should call callback if _processFilename throws.', function(done) {
+          var error = new Error('Earth Exploded');
+          self._processFilename = function() {
+            throw error;
+          };
+          self.cb = function(err) {
+            expect(err).to.eql(error);
+            done();
+          };
+
+          loader.Loader.prototype._setupWalker.call(self);
+
+          fakeWalker.emit('file', {}, {});
         });
       });
     });
