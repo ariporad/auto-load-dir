@@ -70,6 +70,76 @@ describe('index.js', function() {
              expect(result).to.eql(self.modules);
            });
       });
+
+      describe('#_processModules', function() {
+        var self;
+        beforeEach(function() {
+          self =
+          {
+            modules: [],
+            cb: function() {},
+            handler: function() {},
+            _sortModules: function() {}
+          };
+        });
+        it('Should be a function', function() {
+          expect(loader.Loader.prototype._processModules).to.be.a('function');
+        });
+        it('Should call this._sortModules', function() {
+          var hasCalledSortModules = false;
+          self._sortModules = function() { hasCalledSortModules = true; };
+
+          loader.Loader.prototype._processModules.apply(self);
+
+          expect(hasCalledSortModules).to.eql(true);
+        });
+        it('Should call this.handler for each module in order', function(done) {
+          var numberOfModules = 10;
+          for (var i = 0; i < numberOfModules; i++) {
+            self.modules.push({ id: i });
+          }
+
+          var id = 0;
+
+          self.handler = function(module) {
+            expect(module.id).to.eql(id);
+            id++;
+          };
+
+          // Wrap this because we don't care about any errors
+          self.cb = function() { done(); };
+
+          loader.Loader.prototype._processModules.apply(self);
+
+          expect(id).to.eql(numberOfModules);
+        });
+        it('Should call the callback afterwards with no error', function(done) {
+
+          self.cb = function() {
+            expect(Array.prototype.slice.call(arguments).length).to.eql(0);
+            done();
+          };
+
+          loader.Loader.prototype._processModules.apply(self);
+        });
+      });
+
+      describe('#_processFilename', function() {
+        var self;
+        beforeEach(function() {
+          self = { modules: [] };
+        });
+        it('Should be a function', function() {
+          expect(loader.Loader.prototype._processFilename).to.be.a('function');
+        });
+        it('Should do nothing if file does not end with .js', function() {
+          loader.Loader.prototype._processFilename.call(self,
+                                                        __dirname +
+                                                        '/something.txt');
+
+          expect(self.modules).to.eql([]);
+        });
+      });
     });
   });
 });

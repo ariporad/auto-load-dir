@@ -27,6 +27,8 @@ module.exports.Loader = function (dir, args, callback) {
       this.cb = callback;
     }
 
+    if (!dir) return (this.cb || function(){})(new Error("No dir provided."));
+
     this.walker = walk(dir);
     this.walker.on('file', function (file, stat) {
       try {

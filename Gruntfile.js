@@ -49,7 +49,7 @@ module.exports = function(grunt) {
         files: {
           expand: true,
           cwd: 'src',
-          src: '**/*.js'
+          src: ['**/*.js', '**/*.test.js']
         },
         options: {
           tasks: ['test']
