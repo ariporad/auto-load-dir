@@ -53,7 +53,8 @@ describe('index.js', function() {
           self = {
             _setupWalker: function() {
               this.setupWalkerCalled = true;
-            }
+            },
+            setupWalkerCalled: false
           };
         });
         it('Should be a function', function() {
