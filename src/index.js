@@ -8,46 +8,48 @@ module.exports = function loadRoutes(dir, args, callback) {
   return new this.Loader(dir, args, callback);
 };
 
-module.exports.Loader = function (dir, args, callback) {
+module.exports.Loader = function(dir, args, callback) {
   try {
     this.modules = [];
-    this.handler = function(module) { return module.apply(this, arg); };
+    this.handler = function(module) { return module.apply(this, this.args); };
+    this.dir = dir;
+    this.cb = callback || function() {};
 
-    if (typeof dir ===
-        'object' && !callback &&
-        (!args || typeof args == 'function')) {
-      var options = dir;
-      this.dir = options.dir;
-      this.args = options.args;
-      this.handler = options.handler || this.handler;
-      this.cb = options.callback || options.cb || args;
-    } else if (typeof args == 'function') {
+    if (typeof args == 'function') {
       this.handler = args;
-      this.dir = dir;
-      this.cb = callback;
+    } else if (args instanceof Array) {
+      this.args = args;
+    } else {
+      return this.cb(new Error('You must either provide an array of ' +
+                               'arguments, or a handler function'));
     }
 
-    if (!dir) return (this.cb || function(){})(new Error("No dir provided."));
-
-    this.walker = walk(dir);
-    this.walker.on('file', function (file, stat) {
-      try {
-        this._processFilename(file, stat);
-      } catch (err) {
-        (this.cb || function() {})(err);
-      }
-      });
-
-    this.walker.on('end', function() {
-      try {
-        this._processModules(modules, app, express);
-      } catch (err) {
-        (this.cb || function() {})(err);
-      }
-      });
+    this._setupWalker();
+    return this;
   } catch (err) {
-    (this.cb || callback || function (){})(err);
+    (this.cb || callback || function() {})(err);
   }
+};
+
+module.exports.Loader.prototype._setupWalker = function() {
+  this.walker = walk(dir);
+  this.walker.on('file', function(file, stat) {
+    try {
+      this._processFilename(file, stat);
+    } catch (err) {
+      this.cb(err);
+    }
+  });
+
+  this.walker.on('end', function() {
+    try {
+      this._processModules();
+    } catch (err) {
+      this.cb(err);
+    }
+  });
+
+  this.walker.on('error', this.cb);
 };
 
 module.exports.Loader.prototype._sortModules = function() {

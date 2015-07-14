@@ -6,6 +6,7 @@ var rewire = require('rewire');
 
 describe('index.js', function() {
   var loader;
+  var self;
 
   beforeEach(function() {
     loader = rewire('./index');
@@ -47,22 +48,19 @@ describe('index.js', function() {
 
     describe('Loader', function() {
       describe('The constructor', function() {
+        beforeEach(function() {
+          self = { _setupWalker: function() {} };
+        });
         it('Should be a function', function() {
           expect(loader.Loader).to.be.a('function');
         });
-        it('Should call the callback with an error if no dir is provided',
-           function(done) {
-             loader.__set__({
-               walk: function() {
-                 return { on: function() {} };
-               }
-             });
-             loader.Loader(undefined, function(err) {
-               expect(err).to.be.an('Error');
-               expect(err.message).to.contain('dir');
-               done();
-             });
-           });
+        it('Set this.cb to the callback, or a empty function', function() {
+          var cb = function(a, b, c) { return a * b ^ c; };
+          expect(loader.Loader.call(self, __dirname, [], cb).cb).to.eql(cb);
+          expect(loader.Loader.call(self,
+                                    __dirname,
+                   []).cb).to.be.a('function');
+        });
       });
       describe('#_sortModules', function() {
         var self;
