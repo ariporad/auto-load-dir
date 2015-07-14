@@ -17,7 +17,10 @@ module.exports.Loader = function(dir, args, callback) {
     this.handler = args;
   } else if (args instanceof Array) {
     this.args = args;
-    this.handler = function(module) { return module.apply(this, this.args); };
+    this.handler = function(module) {
+      if (typeof module != 'function') return;
+      return module.apply(this, this.args);
+    };
   }
 
   if (!this.dir || !this.handler) {
