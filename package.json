@@ -1,6 +1,6 @@
 {
   "name": "auto-load-dir",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple module to auto load modules from a dir.",
   "main": "src/index.js",
   "scripts": {
