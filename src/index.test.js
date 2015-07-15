@@ -21,25 +21,9 @@ describe('index.js', function() {
       expect(loader).to.be.a('function');
     });
 
-    it('should pass all arguments to module.exports.Loader (and return the result)',
-       function() {
-         var args;
-         var self;
-         var returnValue = { isReturn: true };
-
-         var fakeLoader = function() {
-           args = Array.prototype.slice.call(arguments);
-           self = this;
-           return returnValue;
-         };
-
-         var params = [{ item: 1 }, { item: 2 }, { item: 3 }];
-         var result = loader.apply({ Loader: fakeLoader }, params);
-
-         expect(params).to.be.eql(args);
-         expect(self).to.be.eql({});
-         expect(result).to.be.eql(returnValue);
-       });
+    it('should equal module.exports.Loader', function() {
+      expect(loader).to.eql(loader.Loader);
+    });
 
     it('should export package.json as pkg', function() {
       var pkg = require('../package');

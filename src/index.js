@@ -4,11 +4,8 @@
 
 var walk = require('findit');
 
-module.exports = function loadRoutes(dir, args, callback) {
-  return new this.Loader(dir, args, callback);
-};
-
-module.exports.Loader = function(dir, args, callback) {
+module.exports = function Loader(dir, args, callback) {
+  if (Object.keys(this).length != 0) return new Loader(dir, args, callback);
   this.modules = [];
   this.dir = dir;
   this.cb = callback || function() {};
@@ -31,6 +28,8 @@ module.exports.Loader = function(dir, args, callback) {
   this._setupWalker();
   return this;
 };
+
+module.exports.Loader = module.exports;
 
 module.exports.Loader.prototype._setupWalker = function() {
   try {
